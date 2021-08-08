@@ -3,7 +3,7 @@
 #include <iostream>
 #include <random>
 #include <chrono>  // chrono::system_clock
-#include <ctime>   // localtime
+#include <future>
 
 /* Implementation of class "MessageQueue" */
 
@@ -66,7 +66,7 @@ void TrafficLight::waitForGreen()
     {
         if ( _msgQueue.receive() == TrafficLightPhase::green )
         {
-            break;
+            return;
         }
     }
 }
@@ -102,17 +102,14 @@ void TrafficLight::cycleThroughPhases()
     // start and end time
     std::chrono::time_point<std::chrono::system_clock> startTime, endTime;
 
-    // declare variable to hold seconds on clock
-    time_t seconds;
+    // getting random value for cycle duration between 4 and 6 seconds.
+    std::random_device rd;
 
-    // Get value from system clock and place in seconds variable
-    time(&seconds);
-
-    // convert seconds to a unsigned integer
-    srand( (unsigned int) seconds );
+    std::mt19937 g1 ( rd() );  // mt19937 is a standard mersenne_twister_engine
+    std::uniform_int_distribution<> distribution (4, 6);
 
     // random number
-    int cycle_duration = rand() % (high - low + 1) + low;
+    int cycle_duration = distribution(g1);
     
     startTime = std::chrono::system_clock::now();
     
@@ -135,12 +132,20 @@ void TrafficLight::cycleThroughPhases()
                 _currentPhase = red;
             }
 
-            cycle_duration = rand() % (high - low + 1) + low;
-            
             startTime = std::chrono::system_clock::now();
 
             // sends an update method to the message queue
             _msgQueue.send(std::move(_currentPhase));
+            /*
+            auto is_sent = std::async(std::launch::async, 
+                                  &MessageQueue<TrafficLightPhase>::send, 
+                                  &_msgQueue, 
+                                  std::move(_currentPhase));
+            */
+
+            //is_sent.wait();
+
+            cycle_duration = distribution(g1);
         }
     }
 
