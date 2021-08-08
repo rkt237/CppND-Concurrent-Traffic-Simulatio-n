@@ -1,6 +1,9 @@
+#include "TrafficLight.h"
+
 #include <iostream>
 #include <random>
-#include "TrafficLight.h"
+#include <chrono>  // chrono::system_clock
+#include <ctime>   // localtime
 
 /* Implementation of class "MessageQueue" */
 
@@ -40,10 +43,12 @@ TrafficLightPhase TrafficLight::getCurrentPhase()
 {
     return _currentPhase;
 }
+*/
 
 void TrafficLight::simulate()
 {
     // FP.2b : Finally, the private method „cycleThroughPhases“ should be started in a thread when the public method „simulate“ is called. To do this, use the thread queue in the base class. 
+    threads.emplace_back( std::thread( &cycleThroughPhases, this ) );
 }
 
 // virtual function which is executed in a thread
@@ -53,6 +58,51 @@ void TrafficLight::cycleThroughPhases()
     // and toggles the current phase of the traffic light between red and green and sends an update method 
     // to the message queue using move semantics. The cycle duration should be a random value between 4 and 6 seconds. 
     // Also, the while-loop should use std::this_thread::sleep_for to wait 1ms between two cycles. 
+
+    const int low  = 4;
+    const int high = 6;
+
+    // start and end time
+    std::chrono::time_point<std::chrono::system_clock> startTime, endTime;
+
+    // declare variable to hold seconds on clock
+    time_t seconds;
+
+    // Get value from system clock and place in seconds variable
+    time(&seconds);
+
+    // convert seconds to a unsigned integer
+    srand( (unsigned int) seconds );
+
+    // random number
+    int cycle_duration = rand() % (high - low + 1) + low;
+    
+    startTime = std::chrono::system_clock::now();
+    
+    while (1)
+    {
+        std::this_thread::sleep_for( std::chrono::milliseconds(1) );
+
+        endTime = std::chrono::system_clock::now();
+
+        std::chrono::duration<double> elapsed_seconds = endTime-startTime;
+
+        if ( elapsed_seconds.count() > cycle_duration )
+        {
+            if ( _currentPhase == red )
+            {
+                _currentPhase = green;
+            }
+            else
+            {
+                _currentPhase = red;
+            }
+
+            cycle_duration = rand() % (high - low + 1) + low;
+            startTime = std::chrono::system_clock::now();
+            
+        }
+    }
+
 }
 
-*/
