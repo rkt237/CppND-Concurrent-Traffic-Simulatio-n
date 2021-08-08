@@ -51,6 +51,9 @@ public:
     ~TrafficLight() {}
 
     // getters / setters
+    TrafficLightPhase getCurrentPhase();
+
+    void setCurrentPhase( const TrafficLightPhase CurrentPhase );
     
     // typical behaviour methods
     void waitForGreen() {}
