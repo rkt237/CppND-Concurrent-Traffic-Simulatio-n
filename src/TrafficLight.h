@@ -46,9 +46,9 @@ class TrafficLight : public TrafficObject
 {
 public:
     // constructor / desctructor
-    TrafficLight() {}
+    TrafficLight();
 
-    ~TrafficLight() {}
+    ~TrafficLight();
 
     // getters / setters
     TrafficLightPhase getCurrentPhase();
@@ -56,7 +56,7 @@ public:
     void setCurrentPhase( const TrafficLightPhase CurrentPhase );
     
     // typical behaviour methods
-    void waitForGreen() {}
+    void waitForGreen();
 
     void simulate();
 
