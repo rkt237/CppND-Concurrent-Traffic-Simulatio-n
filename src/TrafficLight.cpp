@@ -31,6 +31,7 @@ void MessageQueue<T>::send(T &&msg)
 {
     // FP.4a : The method send should use the mechanisms std::lock_guard<std::mutex> 
     // as well as _condition.notify_one() to add a new message to the queue and afterwards send a notification.
+    _queue.clear();
 
     // simulate some work
     std::this_thread::sleep_for(std::chrono::milliseconds(100));
@@ -40,7 +41,7 @@ void MessageQueue<T>::send(T &&msg)
 
     // add vector to queue
     std::cout << "   Message " << msg << " has been sent to the queue" << std::endl;
-    _queue.push_back(std::move(msg));
+    _queue.emplace_back(std::move(msg));
     _cond.notify_one(); // notify client after pushing new Vehicle into vector
 }
 
@@ -105,11 +106,11 @@ void TrafficLight::cycleThroughPhases()
     // getting random value for cycle duration between 4 and 6 seconds.
     std::random_device rd;
 
-    std::mt19937 g1 ( rd() );  // mt19937 is a standard mersenne_twister_engine
-    std::uniform_int_distribution<> distribution (4, 6);
+    std::mt19937 gen ( rd() );  // mt19937 is a standard mersenne_twister_engine
+    std::uniform_real_distribution<> distribution (4, 6);
 
     // random number
-    int cycle_duration = distribution(g1);
+    double cycle_duration = distribution(gen);
     
     startTime = std::chrono::system_clock::now();
     
@@ -145,7 +146,7 @@ void TrafficLight::cycleThroughPhases()
 
             //is_sent.wait();
 
-            cycle_duration = distribution(g1);
+            cycle_duration = distribution(gen);
         }
     }
 
